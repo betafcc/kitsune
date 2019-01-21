@@ -17,8 +17,19 @@ $ echo ${template@P}
 [betafcc@bulbasaur ~/Desktop]>
 ```
 
+Possibles aproaches to parallelization:
+- [use of `coproc`](https://stackoverflow.com/a/20018504)
+
+- [more on coprocess](https://unix.stackexchange.com/questions/86270/how-do-you-use-the-command-coproc-in-various-shells)
+
+- [Capturing output of find . -print0 into a bash array](https://stackoverflow.com/a/1120952)
+
+- [bash background process modify global variable](https://stackoverflow.com/a/13209479)
+
 
 ### References:
+- [Bash handbook](https://github.com/denysdovhan/bash-handbook)
+
 - [Bash manual on prompt](https://www.gnu.org/software/bash/manual/bash.html#Controlling-the-Prompt)
 
 - [Bash prompt cheat-sheet](https://ss64.com/bash/syntax-prompt.html)

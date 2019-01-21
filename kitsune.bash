@@ -61,17 +61,13 @@ kitsune_run_ps1() {
 kitsune_run_modules() {
   local -n modules="${1}"
   for module in "${modules[@]}"; do
-    "kitsune_${module}"
+    "kitsune_run_${module}"
   done
 }
 
 # -- RUNNERS
 kitsune_run_path() {
   kitsune_render_path "${PWD_}" "${W}"
-}
-
-kitsune_run_arrow() {
-  kitsune_render_arrow "${q}" "${j}"
 }
 
 kitsune_run_git() {
@@ -96,6 +92,10 @@ kitsune_run_git() {
 
     kitsune_render_git "${branch}" "${state}"
   fi
+}
+
+kitsune_run_arrow() {
+  kitsune_render_arrow "${q}" "${j}"
 }
 
 # -- RENDERERS
@@ -145,5 +145,27 @@ kitsune_render_arrow() (
   printf '%b' "${kitsune_template_arrow[${state}]}"
 )
 
-# kitsune_preprocess_all
-# kitsune_prompt
+kitsune_preprocess() {
+  local template_name key
+
+  for template_name in "${@}"; do
+    local -n template_table="${template_name}"
+
+    for key in "${!template_table[@]}"; do
+      template_table[${key}]="$(,clc --escape "${template_table[${key}]}")"
+    done
+  done
+}
+
+
+
+if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
+  kitsune_run_ps1 | ,clc
+else
+  kitsune_preprocess "${!kitsune_template_@}"
+  kitsune_prompt_command() {
+    PS1=`kitsune_run_ps1`
+  }
+
+  PROMPT_COMMAND='kitsune_prompt_command ; ${PROMPT_COMMAND}'
+fi
