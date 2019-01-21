@@ -19,6 +19,8 @@ $ echo ${template@P}
 
 
 ### References:
+- [Bash manual on prompt](https://www.gnu.org/software/bash/manual/bash.html#Controlling-the-Prompt)
+
 - [Bash prompt cheat-sheet](https://ss64.com/bash/syntax-prompt.html)
 
 - [Pure Bash Powerline implementation](https://github.com/chris-marsh/pureline)
