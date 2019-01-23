@@ -6,7 +6,9 @@ esac
 
 # ❯❱▐
 # -- EXPORTS
-kitsune_ps1='$(kitsune_ps1)'
+kitsune_prompt_command() {
+  PS1="$(kitsune_ps1)"
+}
 kitsune_ps3='\[\e[31m\]● \[\e[m\]'
 kitsune_ps2='\[\e[31m\]▐ \[\e[m\]'
 kitsune_ps4='▐ \[\e[1;33m\]${FUNCNAME[0]}:${LINENO}:\[\e[0m\]q '
@@ -56,7 +58,6 @@ kitsune_w='\w'
 kitsune_W='\W'
 
 kitsune_ps1() {
-
   local -A env=(
     [q]=$?
     [j]="${kitsune_j@P}"
@@ -159,10 +160,6 @@ else
   case "${1}" in
     -a|--activate)
 
-
-      kitsune_prompt_command() {
-        PS1="$(kitsune_ps1)"
-      }
 
       PROMPT_COMMAND="kitsune_prompt_command ; ${PROMPT_COMMAND}"
       ;;
