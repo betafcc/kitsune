@@ -117,14 +117,14 @@ kitsune_section_path() (
   esac
 
   export W="${env[W]}" n_untagged tag
-  result=$(envsubst <<< "${kitsune_template_path[${path_case}]}")
-  printf '%b' "${result@P}"
+
+  printf '%b' "${kitsune_template_path[${path_case}]@P}"
 )
 
 kitsune_section_git() (
   export branch="${env[git_branch]}"
   set +u
-  printf '%b' "$(envsubst <<< "${kitsune_template_git[${env[git_state]}]}")"
+  printf '%b' "${kitsune_template_git[${env[git_state]}]@P}"
 )
 
 kitsune_section_arrow() (
@@ -156,9 +156,15 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
 else
   kitsune_preprocess "${!kitsune_template_@}"
 
-  kitsune_prompt_command() {
-    PS1="$(kitsune_ps1)"
-  }
+  case "${1}" in
+    -a|--activate)
 
-  PROMPT_COMMAND="kitsune_prompt_command ; ${PROMPT_COMMAND}"
+
+      kitsune_prompt_command() {
+        PS1="$(kitsune_ps1)"
+      }
+
+      PROMPT_COMMAND="kitsune_prompt_command ; ${PROMPT_COMMAND}"
+      ;;
+  esac
 fi
