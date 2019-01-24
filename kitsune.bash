@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-case $- in
-  *i*) :;;
-  *) +strict;;
-esac
-
-# ❯❱▐
 # -- EXPORTS
 kitsune_prompt_command() {
   PS1="$(kitsune_ps1)"
@@ -14,17 +8,11 @@ kitsune_ps2='\[\e[31m\]▐ \[\e[m\]'
 kitsune_ps4='▐ \[\e[1;33m\]${FUNCNAME[0]}:${LINENO}:\[\e[0m\]q '
 
 # -- CONFIGURATION
-declare -a kitsune_ps1_sections=(
-  'path'
-  'git'
-  'arrow'
-)
-
-declare -a kistune_env_providers=(
-  'git'
-)
+declare -a kitsune_ps1_sections=('path' 'git' 'arrow')
+declare -a kistune_env_providers=('git')
 
 # -- TEMPLATES
+# ❯❱▐
 declare -A kitsune_template_path_tag=(
   [${HOME}/Desktop]='<bold + white:【<cyan:今>】>'
   [${HOME}]='<bold + white:【<yellow:家>】>'
@@ -33,16 +21,16 @@ declare -A kitsune_template_path_tag=(
 
 declare -A kitsune_template_path=(
   [no_untagged]='$tag'
-  [single_untagged]='$tag<bold:$W >'
-  [multiple_untagged]='$tag<bold:$(yes ❯ | head -n $(($n_untagged-1)) | paste -sd "") $W >'
+  [single_untagged]='$tag<bold:${env[W]} >'
+  [multiple_untagged]='$tag<bold:$(yes ❯ | head -n $(($n_untagged-1)) | paste -sd "") ${env[W]} >'
 )
 
 declare -A kitsune_template_git=(
-  [modified]='<bold+red:❪${branch}❫ >'
-  [staged]='<bold+red:❪${branch}❫ >'
-  [untracked]='<bold+red:❪${branch}❫ >'
-  [behind_ahead]='<bold+yellow:❪${branch}❫ >'
-  [ok]='<bold+cyan:❪${branch}❫ >'
+  [modified]='<bold+red:❪${env[git_branch]}❫ >'
+  [staged]='<bold+red:❪${env[git_branch]}❫ >'
+  [untracked]='<bold+red:❪${env[git_branch]}❫ >'
+  [behind_ahead]='<bold+yellow:❪${env[git_branch]}❫ >'
+  [ok]='<bold+cyan:❪${env[git_branch]}❫ >'
   [not_repo]=''
 )
 
@@ -54,20 +42,17 @@ declare -A kitsune_template_arrow=(
 
 # for exansion with @P
 kitsune_j='\j'
-kitsune_w='\w'
 kitsune_W='\W'
 
 kitsune_ps1() {
   local -A env=(
     [q]=$?
     [j]="${kitsune_j@P}"
-    [w]="${kitsune_w@P}"
     [W]="${kitsune_W@P}"
     [PWD]="${PWD}"
   )
-  local env_provider
-
   # NOTE: how to share memory from subshells? Needed for parallelization
+  local env_provider
   for env_provider in "${kistune_env_providers[@]}"; do
     "kitsune_env_${env_provider}"
   done
@@ -102,14 +87,13 @@ kitsune_env_git() {
 }
 
 # -- RENDERERS
-kitsune_section_path() (
-  set +u
-  declare tag dir="${env[PWD]}" n_untagged=0
-  while [ ! "${tag:=${kitsune_template_path_tag[${dir}]}}" ]; do
-    dir="$(dirname "${dir}")"
-    n_untagged=$((n_untagged + 1))
+kitsune_section_path() {
+  local tag path_case dir="${env[PWD]}" n_untagged=0
+  until [ ${kitsune_template_path_tag[${dir}]+x} ]; do
+    dir="${dir%/*}"
+    ((++n_untagged))
   done
-  set -u
+  tag="${kitsune_template_path_tag[${dir}]}"
 
   case "${n_untagged}" in
     0) path_case=no_untagged;;
@@ -117,26 +101,22 @@ kitsune_section_path() (
     *) path_case=multiple_untagged;;
   esac
 
-  export W="${env[W]}" n_untagged tag
-
   printf '%b' "${kitsune_template_path[${path_case}]@P}"
-)
+}
 
-kitsune_section_git() (
-  export branch="${env[git_branch]}"
-  set +u
+kitsune_section_git() {
   printf '%b' "${kitsune_template_git[${env[git_state]}]@P}"
-)
+}
 
-kitsune_section_arrow() (
+kitsune_section_arrow() {
+  local state
   case "${env[q]},${env[j]}" in
     0,0) state=ok;;
     0,*) state=has_jobs;;
     *) state=erroed_last;;
   esac
-
-  printf '%b' "${kitsune_template_arrow[${state}]}"
-)
+  printf '%b' "${kitsune_template_arrow[${state}]@P}"
+}
 
 kitsune_preprocess() {
   local template_name key
@@ -150,18 +130,12 @@ kitsune_preprocess() {
   done
 }
 
-
-
 if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
   kitsune_ps1 | ,clc
 else
   kitsune_preprocess "${!kitsune_template_@}"
-
   case "${1}" in
-    -a|--activate)
-
-
-      PROMPT_COMMAND="kitsune_prompt_command ; ${PROMPT_COMMAND}"
+    -a|--activate) PROMPT_COMMAND="kitsune_prompt_command ; ${PROMPT_COMMAND}"
       ;;
   esac
 fi
