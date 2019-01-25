@@ -21,16 +21,16 @@ declare -A kitsune_template_path_tag=(
 
 declare -A kitsune_template_path=(
   [no_untagged]='$tag'
-  [single_untagged]='$tag<bold:${env[W]} >'
-  [multiple_untagged]='$tag<bold:$(yes ❯ | head -n $(($n_untagged-1)) | paste -sd "") ${env[W]} >'
+  [single_untagged]='$tag<bold:${sys[W]} >'
+  [multiple_untagged]='$tag<bold:$(yes ❯ | head -n $(($n_untagged-1)) | paste -sd "") ${sys[W]} >'
 )
 
 declare -A kitsune_template_git=(
-  [modified]='<bold+red:❪${env[git_branch]}❫ >'
-  [staged]='<bold+red:❪${env[git_branch]}❫ >'
-  [untracked]='<bold+red:❪${env[git_branch]}❫ >'
-  [behind_ahead]='<bold+yellow:❪${env[git_branch]}❫ >'
-  [ok]='<bold+cyan:❪${env[git_branch]}❫ >'
+  [modified]='<bold+red:❪${git[branch]}❫ >'
+  [staged]='<bold+red:❪${git[branch]}❫ >'
+  [untracked]='<bold+red:❪${git[branch]}❫ >'
+  [behind_ahead]='<bold+yellow:❪${git[branch]}❫ >'
+  [ok]='<bold+cyan:❪${git[branch]}❫ >'
   [not_repo]=''
 )
 
@@ -45,16 +45,17 @@ kitsune_j='\j'
 kitsune_W='\W'
 
 kitsune_ps1() {
-  local env_provider section
-  local -A env=(
+  local env section
+  local -A sys=(
     [q]=$?
     [j]="${kitsune_j@P}"
     [W]="${kitsune_W@P}"
     [PWD]="${PWD}"
   )
   # NOTE: how to share memory from subshells? Needed for parallelization
-  for env_provider in "${kistune_env_providers[@]}"; do
-    "kitsune_env_${env_provider}"
+  for env in "${kistune_env_providers[@]}"; do
+    local -A "${env}"
+    "kitsune_env_${env}"
   done
   for section in "${kitsune_ps1_sections[@]}"; do
     "kitsune_section_${section}"
@@ -63,31 +64,31 @@ kitsune_ps1() {
 
 # -- ENV PROVIDERS
 kitsune_env_git() {
-  env[git_branch]=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
+  git[branch]=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
 
-  if [ -n "${env[git_branch]}" ]; then
+  if [ -n "${git[branch]}" ]; then
     if [ ! "$(git diff --name-only --diff-filter=M 2> /dev/null | wc -l )" -eq "0" ]; then
-       env[git_state]=modified
+       git[state]=modified
     elif [ ! "$(git diff --staged --name-only --diff-filter=AM 2> /dev/null | wc -l)" -eq "0" ]; then
-      env[git_state]=staged
+      git[state]=staged
     elif [ ! "$(git ls-files --other --exclude-standard | wc -l)"  -eq "0" ]; then
-      env[git_state]=untracked
+      git[state]=untracked
     else
       local number_behind_ahead="$(git rev-list --count --left-right '@{upstream}...HEAD' 2>/dev/null)"
       if [ ! "0${number_behind_ahead#*	}" -eq 0 -o ! "0${number_behind_ahead%	*}" -eq 0 ]; then
-        env[git_state]=behind_ahead
+        git[state]=behind_ahead
       else
-        env[git_state]=ok
+        git[state]=ok
       fi
     fi
   else
-    env[git_state]=not_repo
+    git[state]=not_repo
   fi
 }
 
 # -- RENDERERS
 kitsune_section_path() {
-  local tag path_case dir="${env[PWD]}" n_untagged=0
+  local tag path_case dir="${sys[PWD]}" n_untagged=0
   until [ ${kitsune_template_path_tag[${dir}]+x} ]; do
     dir="${dir%/*}"
     ((++n_untagged))
@@ -103,12 +104,12 @@ kitsune_section_path() {
 }
 
 kitsune_section_git() {
-  printf '%b' "${kitsune_template_git[${env[git_state]}]@P}"
+  printf '%b' "${kitsune_template_git[${git[state]}]@P}"
 }
 
 kitsune_section_arrow() {
   local state
-  case "${env[q]},${env[j]}" in
+  case "${sys[q]},${sys[j]}" in
     0,0) state=ok;;
     0,*) state=has_jobs;;
     *) state=erroed_last;;
