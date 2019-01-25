@@ -10,11 +10,23 @@ $ name=Betani envsubst <<< ${template}
 hello Betani
 ```
 
-Prompt variables can be expanded on demand using `${var@P}`
+Since Bash 4.4, prompt variables can be expanded on demand using `${var@P}`
 ```shell
 $ template='[\u@\h \w]> '
 $ echo ${template@P}
 [betafcc@bulbasaur ~/Desktop]>
+```
+
+Actually also expand templates (more performant than `envsubst`):
+```shell
+$ template='hello ${name}'
+$ name=Betani eval 'echo ${template@P}'
+hello Betani
+
+# Also work without eval, just need to expose the variable to the env
+$ name=Betani  # exposed to shell
+$ echo "${template@P}"  # then it works here
+hello Betani
 ```
 
 Possibles aproaches to parallelization:
