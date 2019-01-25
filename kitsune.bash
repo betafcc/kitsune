@@ -45,6 +45,7 @@ kitsune_j='\j'
 kitsune_W='\W'
 
 kitsune_ps1() {
+  local env_provider section
   local -A env=(
     [q]=$?
     [j]="${kitsune_j@P}"
@@ -52,11 +53,9 @@ kitsune_ps1() {
     [PWD]="${PWD}"
   )
   # NOTE: how to share memory from subshells? Needed for parallelization
-  local env_provider
   for env_provider in "${kistune_env_providers[@]}"; do
     "kitsune_env_${env_provider}"
   done
-
   for section in "${kitsune_ps1_sections[@]}"; do
     "kitsune_section_${section}"
   done
@@ -100,7 +99,6 @@ kitsune_section_path() {
     1) path_case=single_untagged;;
     *) path_case=multiple_untagged;;
   esac
-
   printf '%b' "${kitsune_template_path[${path_case}]@P}"
 }
 
@@ -120,7 +118,6 @@ kitsune_section_arrow() {
 
 kitsune_preprocess() {
   local template_name key
-
   for template_name in "${@}"; do
     local -n template_table="${template_name}"
 
