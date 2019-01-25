@@ -122,14 +122,17 @@ kitsune_preprocess() {
     local -n template_table="${template_name}"
 
     for key in "${!template_table[@]}"; do
-      template_table[${key}]="$(,clc --escape "${template_table[${key}]}")"
+      template_table[${key}]="$("${kitsune_clc}" --escape "${template_table[${key}]}")"
     done
   done
 }
 
+
 if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
-  kitsune_ps1 | ,clc
+  kitsune_ps1 | "$(dirname "$0")"/lib/clc/clc
 else
+  kitsune_src_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+  kitsune_clc="${kitsune_src_dir}/lib/clc/clc"
   kitsune_preprocess "${!kitsune_template_@}"
   case "${1}" in
     -a|--activate) PROMPT_COMMAND="kitsune_prompt_command ; ${PROMPT_COMMAND}"
