@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 KITSUNE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 KITSUNE_CLC="${KITSUNE_DIR}/lib/clc/clc"
 : "${KITSUNE_CONFIG:=${KITSUNE_DIR}/config.bash}"
