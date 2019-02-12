@@ -4,7 +4,6 @@ KITSUNE_CLC="${KITSUNE_DIR}/lib/clc/clc"
 __ks_did_preprocess=false
 
 
-
 kitsune() {
   case "${1}" in
     preprocess)
@@ -163,3 +162,10 @@ __ks_update_arrow() {
     *,*) __ks_model[arrow.key]=erroed_last;;
   esac
 }
+
+
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+  case "${1}" in
+    a|activate) kitsune activate;;
+  esac
+fi
