@@ -1,28 +1,40 @@
 KITSUNE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 KITSUNE_CLC="${KITSUNE_DIR}/lib/clc/clc"
 : "${KITSUNE_CONFIG:=${KITSUNE_DIR}/config.bash}"
+__ks_did_preprocess=false
+
 
 
 kitsune() {
   case "${1}" in
     preprocess)
-      local name key
-      for name in template tag; do
-        local -n arr="__ks_${name}"
-        for key in "${!arr[@]}"; do
-          arr[${key}]=$("${KITSUNE_CLC}" --escape "${arr[${key}]}")
+      if ! "${__ks_did_preprocess}"; then
+        local name key
+        for name in template tag; do
+          local -n arr="__ks_${name}"
+          for key in "${!arr[@]}"; do
+            arr[${key}]=$("${KITSUNE_CLC}" --escape "${arr[${key}]}")
+          done
         done
-      done
+
+        __ks_did_preprocess=true
+      fi
     ;;
 
     activate)
+      kitsune preprocess
+
       if ! [[ ${PROMPT_COMMAND} =~ '__ks_prompt_command;' ]]; then
         PROMPT_COMMAND="__ks_prompt_command;${PROMPT_COMMAND}"
+        __ks_old_PS1="${PS1}"
       fi
     ;;
 
     deactivate)
-      PROMPT_COMMAND="${PROMPT_COMMAND/__ks_prompt_command;/}"
+      if [[ ${PROMPT_COMMAND} =~ '__ks_prompt_command;' ]]; then
+        PROMPT_COMMAND="${PROMPT_COMMAND/__ks_prompt_command;/}"
+        PS1="${__ks_old_PS1}"
+      fi
     ;;
   esac
 }
