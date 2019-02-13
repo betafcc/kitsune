@@ -168,9 +168,11 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
   case "${1}" in
     a|activate) kitsune activate;;
     v|view)
-      kitsune preprocess
-      __ks_prompt_command
-      printf %b "${PS1}"
+      (
+        kitsune preprocess
+        __ks_prompt_command
+        printf %b "${PS1@P}"
+      )
     ;;
   esac
 fi
