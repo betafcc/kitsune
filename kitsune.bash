@@ -35,6 +35,13 @@ kitsune() {
         PS1="${__ks_old_PS1}"
       fi
     ;;
+
+    render)
+      kitsune preprocess
+      __ks_update
+      local ps1="${__ks_PS1@P}"
+      printf %b "${ps1@P}"
+      ;;
   esac
 }
 
@@ -167,12 +174,5 @@ __ks_update_arrow() {
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
   case "${1}" in
     a|activate) kitsune activate;;
-    v|view)
-      (
-        kitsune preprocess
-        __ks_prompt_command
-        printf %b "${PS1@P}"
-      )
-    ;;
   esac
 fi
