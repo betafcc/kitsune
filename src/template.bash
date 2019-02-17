@@ -1,5 +1,7 @@
 declare -A __ks_template=(
-  [tag]='<bold+white:【${__ks_tag[${__ks_model[tag.tagged_part]}]@P}】>'
+  [tag.${HOME}/Desktop]='<bold+white:【<cyan:今>】>'
+  [tag.${HOME}]='<bold+white:【<yellow:家>】>'
+  [tag./]='<bold+white:【<red:本>】>'
 
   [path.no_untagged]=''
   [path.single_untagged]='<bold:${__ks_model[sys.W]} >'

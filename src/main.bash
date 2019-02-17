@@ -1,6 +1,6 @@
 declare -A __ks_model=(
   [sys.q]='' [sys.j]='' [sys.W]='' [sys.PWD]=''
-  [tag.tagged_part]='/' [tag.untagged_levels]=0
+  [tag.key]='/' [tag.untagged_levels]=0
   [path.key]=no_untagged
   [git.key]=not_repo [git.branch]=''
   [arrow.key]=ok
@@ -14,11 +14,10 @@ kitsune() {
     ps1)
       case "${2:---static}" in
         -s|--static)
-          printf %b \
-                 "${__ks_template[tag]}" \
-                 '${__ks_template[path.${__ks_model[path.key]}]@P}' \
-                 '${__ks_template[git.${__ks_model[git.key]}]@P}' \
-                 '${__ks_template[arrow.${__ks_model[arrow.key]}]@P}'
+          local name
+          for name in tag path git arrow; do
+            printf '${__ks_template[%s.${__ks_model[%s.key]}]@P}' "${name}" "${name}"
+          done
           ;;
 
         -c|--current)
@@ -31,7 +30,7 @@ kitsune() {
           kitsune ps1 --current
           ;;
       esac
-    ;;
+      ;;
 
     activate)
       if ! [[ ${PROMPT_COMMAND} =~ 'kitsune update;' ]]; then
@@ -39,14 +38,14 @@ kitsune() {
         __ks_old_PS1="${PS1}"
         PS1="$(kitsune ps1)"
       fi
-    ;;
+      ;;
 
     deactivate)
       if [[ ${PROMPT_COMMAND} =~ 'kitsune update;' ]]; then
         PROMPT_COMMAND="${PROMPT_COMMAND/kitsune update;/}"
         PS1="${__ks_old_PS1}"
       fi
-    ;;
+      ;;
 
     update)
       case "${2:-all}" in
@@ -56,20 +55,20 @@ kitsune() {
           kitsune update path
           kitsune update git
           kitsune update arrow
-        ;;
+          ;;
 
         sys)
           __ks_model[sys.q]=$?
           __ks_model[sys.j]="${__ks_j@P}"
           __ks_model[sys.W]="${__ks_W@P}"
           __ks_model[sys.PWD]="${PWD}"
-        ;;
+          ;;
 
         tag)
           local dir="${__ks_model[sys.PWD]}"
           local untagged_levels=0
 
-          until [ ${__ks_tag[${dir}]+x} ]; do
+          until [ ${__ks_template[tag.${dir}]+x} ]; do
             dir="${dir%/*}"
             if [ -z ${dir} ]; then
               dir=/
@@ -78,9 +77,9 @@ kitsune() {
             ((++untagged_levels))
           done
 
-          __ks_model[tag.tagged_part]="${dir}"
+          __ks_model[tag.key]="${dir}"
           __ks_model[tag.untagged_levels]="${untagged_levels}"
-        ;;
+          ;;
 
         path)
           case "${__ks_model[tag.untagged_levels]}" in
@@ -88,7 +87,7 @@ kitsune() {
             1) __ks_model[path.key]=single_untagged;;
             *) __ks_model[path.key]=multi_untagged;;
           esac
-        ;;
+          ;;
 
         git)
           __ks_model[git.branch]=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
@@ -112,7 +111,7 @@ kitsune() {
           else
             __ks_model[git.key]=not_repo
           fi
-        ;;
+          ;;
 
         arrow)
           case "${__ks_model[sys.q]},${__ks_model[sys.j]}" in
@@ -120,8 +119,8 @@ kitsune() {
             0,*) __ks_model[arrow.key]=has_jobs;;
             *,*) __ks_model[arrow.key]=erroed_last;;
           esac
-        ;;
+          ;;
       esac
-    ;;
+      ;;
   esac
 }
