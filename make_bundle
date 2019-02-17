@@ -21,3 +21,15 @@ done
 for name in "${!__ks_@}"; do
   declare -p "${name}"
 done
+
+printf '
+if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
+  if [ $# -eq 0 ]; then
+    kitsune ps1 --render
+  else
+    kitsune "${@}"
+  fi
+elif [ $# -gt 0 ]; then
+  kitsune "${@}"
+fi
+'
