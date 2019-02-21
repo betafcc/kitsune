@@ -1,4 +1,5 @@
 declare -A __ks_model=(
+  [venv.key]='off'
   [sys.q]='' [sys.j]='' [sys.W]='' [sys.PWD]=''
   [tag.key]='/' [tag.untagged_levels]=0
   [path.key]=no_untagged
@@ -15,7 +16,7 @@ kitsune() {
       case "${2:---static}" in
         -s|--static)
           local name
-          for name in tag path git arrow; do
+          for name in venv tag path git arrow; do
             printf '${__ks_template[%s.${__ks_model[%s.key]}]@P}' "${name}" "${name}"
           done
           ;;
@@ -50,11 +51,20 @@ kitsune() {
     update)
       case "${2:-all}" in
         all)
+          kitsune update venv
           kitsune update sys
           kitsune update tag
           kitsune update path
           kitsune update git
           kitsune update arrow
+          ;;
+
+        venv)
+          if [ -n "$VIRTUAL_ENV" ]; then
+            __ks_model[venv.key]=on
+          else
+            __ks_model[venv.key]=off
+          fi
           ;;
 
         sys)

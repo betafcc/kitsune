@@ -1,4 +1,7 @@
 declare -A __ks_template=(
+  [venv.on]='<bold+cyan:[<yellow:>]>'
+  [venv.off]=''
+
   [tag.${HOME}/Desktop]='<bold+white:【<cyan:今>】>'
   [tag.${HOME}]='<bold+white:【<yellow:家>】>'
   [tag./]='<bold+white:【<red:本>】>'
