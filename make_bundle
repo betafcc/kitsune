@@ -6,6 +6,7 @@ KITSUNE_CLC="${KITSUNE_DIR}/lib/clc/clc"
 source "./src/main.bash"
 source "./src/template.bash"
 
+echo '#!/usr/bin/env bash'
 
 declare -pf kitsune
 
