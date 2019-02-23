@@ -53,8 +53,10 @@ kitsune() {
     update)
       case "${2:-all}" in
         all)
-          kitsune update venv
+          # sys need to be first, otherwise, return code won't be right
           kitsune update sys
+
+          kitsune update venv
           kitsune update tag
           kitsune update path
           kitsune update git
