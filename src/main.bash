@@ -38,6 +38,8 @@ kitsune() {
         PROMPT_COMMAND="kitsune update;${PROMPT_COMMAND}"
         __ks_old_PS1="${PS1}"
         PS1="$(kitsune ps1)"
+        # for venv module, doen't mess with PS1 on venv activation
+        VIRTUAL_ENV_DISABLE_PROMPT=true
       fi
       ;;
 
