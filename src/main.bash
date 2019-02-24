@@ -12,23 +12,21 @@ __ks_W='\W'
 
 kitsune() {
   case "${1}" in
-    ps1)
+    ps[01234])
       case "${2:---static}" in
         -s|--static)
-          local name
-          for name in venv tag path git arrow; do
-            printf '${__ks_template[%s.${__ks_model[%s.key]}]@P}' "${name}" "${name}"
-          done
+          set -- "$(echo "${1}" | tr a-z A-Z)"
+          printf %b "${__ks_template[prompt.${1}]}"
           ;;
 
         -c|--current)
-          local ps1=$(kitsune ps1 --static)
-          printf %b "${ps1@P}"
+          set -- "$(kitsune "${1}" --static)"
+          printf %b "${1@P}"
           ;;
 
         -r|--render)
           kitsune update
-          kitsune ps1 --current
+          kitsune "${1}" --current
           ;;
       esac
       ;;
@@ -36,9 +34,14 @@ kitsune() {
     activate)
       if ! [[ ${PROMPT_COMMAND} =~ 'kitsune update;' ]]; then
         PROMPT_COMMAND="kitsune update;${PROMPT_COMMAND}"
-        __ks_old_PS1="${PS1}"
-        PS1="$(kitsune ps1)"
-        # for venv module, doen't mess with PS1 on venv activation
+
+        local name
+        for name in $(printf '%s\n' "${!__ks_template[@]}" | sed -n 's/^prompt.//p'); do
+          __ks_model[prompt.old.${name}]="${!name}"
+          declare -g "${name}"="$(kitsune "$(echo "${name}" | tr A-Z a-z)")"
+        done
+
+        # for venv module, don't mess with PS1 on venv activation
         VIRTUAL_ENV_DISABLE_PROMPT=true
       fi
       ;;
@@ -46,7 +49,11 @@ kitsune() {
     deactivate)
       if [[ ${PROMPT_COMMAND} =~ 'kitsune update;' ]]; then
         PROMPT_COMMAND="${PROMPT_COMMAND/kitsune update;/}"
-        PS1="${__ks_old_PS1}"
+
+        local name
+        for name in $(printf '%s\n' "${!__ks_model[@]}" | sed -n 's/^prompt.old.//p'); do
+          declare -g "${name}"="${__ks_model[prompt.old.${name}]}"
+        done
       fi
       ;;
 

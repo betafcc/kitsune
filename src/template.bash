@@ -1,4 +1,10 @@
 declare -A __ks_template=(
+  [prompt.PS1]=$(
+    for name in venv tag path git arrow; do
+      printf '${__ks_template[%s.${__ks_model[%s.key]}]@P}' "${name}" "${name}"
+    done)
+  [prompt.PS2]='▐ '
+
   [venv.on]='<bold+cyan:[<yellow:>]>'
   [venv.off]=''
 
