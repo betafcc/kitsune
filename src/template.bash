@@ -4,6 +4,7 @@ declare -A __ks_template=(
       printf '${__ks_template[%s.${__ks_model[%s.key]}]@P}' "${name}" "${name}"
     done)
   [prompt.PS2]='▐ '
+  [prompt.PS4]='▐ <bold+cyan:${FUNCNAME[0]}<yellow::${LINENO}:>> '
 
   [venv.on]='<bold+cyan:[<yellow:>]>'
   [venv.off]=''
