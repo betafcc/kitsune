@@ -38,7 +38,7 @@ kitsune() {
         local name
         for name in $(printf '%s\n' "${!__ks_template[@]}" | sed -n 's/^prompt.//p'); do
           __ks_model[prompt.old.${name}]="${!name}"
-          declare -g "${name}"="$(kitsune "$(echo "${name}" | tr A-Z a-z)")"
+          export "${name}"="$(kitsune "$(echo "${name}" | tr A-Z a-z)")"
         done
 
         # for venv module, don't mess with PS1 on venv activation
@@ -52,7 +52,7 @@ kitsune() {
 
         local name
         for name in $(printf '%s\n' "${!__ks_model[@]}" | sed -n 's/^prompt.old.//p'); do
-          declare -g "${name}"="${__ks_model[prompt.old.${name}]}"
+          export "${name}"="${__ks_model[prompt.old.${name}]}"
         done
       fi
       ;;
