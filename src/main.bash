@@ -89,16 +89,12 @@ kitsune() {
           local dir="${__ks_model[sys.PWD]}"
           local untagged_levels=0
 
-          until [ ${__ks_template[tag.${dir}]+x} ]; do
-            dir="${dir%/*}"
-            if [ -z ${dir} ]; then
-              dir=/
-              break
-            fi
+          until [ ${__ks_template[tag.${dir}]+x} ] || [ -z "${dir}" ]; do
             ((++untagged_levels))
+            dir="${dir%/*}"
           done
 
-          __ks_model[tag.key]="${dir}"
+          __ks_model[tag.key]="${dir:-/}"
           __ks_model[tag.untagged_levels]="${untagged_levels}"
           ;;
 
